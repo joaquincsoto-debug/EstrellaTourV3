@@ -89,3 +89,22 @@ html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-f
 .modal { background:#fff; border-radius:12px; width:min(92vw, 520px); padding:16px; }
 
 .small { font-size:13px; color:var(--muted); }
+
+/* Botón compacto, cuadrado, con ícono centrado */
+.btn.square {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;         /* cuadrado con esquinas suaves (no redondo) */
+  min-width: 40px;             /* evita que se estire */
+}
+
+/* Variación “ghost” cuadrada */
+.btn.square.ghost {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* Íconos dentro de botones */
+.btn.icon { display: inline-flex; align-items: center; justify-content: center; }
+.btn.icon svg { width: 18px; height: 18px; display: block; fill: currentColor; }
