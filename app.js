@@ -113,7 +113,7 @@ function render() {
 
   $('#logout', top).addEventListener('click', ()=>{ logout(); render(); });
 
-  // Router simple
+  // ✅ Parsear ruta ignorando querystring
   const raw = location.hash.slice(1);           // ej: "reservar?edit=XYZ"
   const [route] = raw.split('?');               // "reservar"
   if (route === 'reservar') return viewReservar();
@@ -204,16 +204,20 @@ function ticketItem(ticket) {
   const right = document.createElement('div');
   right.style.display = 'flex'; right.style.alignItems = 'center'; right.style.gap = '8px';
 
-  // Botón QR cuadrado con ícono
+  // Botón QR compacto, cuadrado y solo ícono
   const btnQR = document.createElement('button');
   btnQR.className = 'btn square ghost icon';
   btnQR.title = 'Ver QR';
   btnQR.setAttribute('aria-label', 'Ver código QR');
   btnQR.innerHTML = `
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <!-- Ícono QR -->
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
       <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm10 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-4v-2h2v-2zm-6 2h2v2h-2v-2z"/>
-    </svg>`;
+    </svg>
+  `;
   btnQR.addEventListener('click', ()=> showQRModal(ticket));
+
+
 
   const kebab = document.createElement('div');
   kebab.className = 'kebab';
@@ -225,7 +229,7 @@ function ticketItem(ticket) {
   bCancel.addEventListener('click', ()=>{
     menu.style.display = 'none';
     const now = new Date();
-    const trip = parseYMDLocal(ticket.date);
+    const trip = parseYMDLocal(ticket.date); // local
     const [hh, mm] = ticket.time.split(':').map(Number);
     trip.setHours(hh, mm || 0, 0, 0);
     const diffH = (trip - now) / 36e5;
@@ -307,14 +311,14 @@ function viewReservar() {
       <div class="legend">Seleccioná una fecha en el calendario</div>
       <div class="row mt8" style="align-items:center; justify-content:center; gap:12px;">
         <button class="btn square ghost icon" id="prev_m" title="Mes anterior" aria-label="Mes anterior">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <polygon points="15,4 7,12 15,20"></polygon>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <polygon points="15,4 7,12 15,20" fill="currentColor"></polygon>
           </svg>
         </button>
         <div class="col center" id="month_label" style="font-weight:600;"></div>
         <button class="btn square ghost icon" id="next_m" title="Mes siguiente" aria-label="Mes siguiente">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <polygon points="9,4 17,12 9,20"></polygon>
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <polygon points="9,4 17,12 9,20" fill="currentColor"></polygon>
           </svg>
         </button>
       </div>
@@ -487,31 +491,61 @@ function showQRModal(ticket) {
     <div class="small">Mostralo al chofer al momento de abordar.</div>
     <div id="qr" class="center mt12"></div>
     <pre class="card mt12" style="overflow:auto; white-space:pre-wrap; font-size:12px;">${JSON.stringify(payload,null,2)}</pre>
-    <div class="row mt16" style="justify-content:flex-end;">
-      <button class="btn inline ghost" id="close_modal">Cerrar</button>
-    </div>
   `;
   back.appendChild(modal);
   document.body.appendChild(back);
 
-  const qrDiv = $('#qr', modal);
+  const qrDiv = document.querySelector('#qr');
   const qrText = JSON.stringify(payload);
-  if (window.QRCode && typeof QRCode.toCanvas === 'function') {
-    QRCode.toCanvas(qrText, { width: 200, margin: 1 }, function (err, canvas) {
-      if (err) {
-        qrDiv.innerHTML = '<div class="small">No se pudo generar el QR. Mostrá el código textual de abajo.</div>';
-      } else {
-        qrDiv.appendChild(canvas);
-      }
-    });
+
+  let rendered = false;
+
+  // Opción A: qrcode (moderna) -> QRCode.toCanvas(canvas, text, options, cb)
+  if (window.QRCode && typeof window.QRCode.toCanvas === 'function') {
+    try {
+      const canvas = document.createElement('canvas');
+      window.QRCode.toCanvas(canvas, qrText, { width: 200, margin: 1 }, (err) => {
+        if (!err) {
+          qrDiv.appendChild(canvas);
+        } else {
+          // Si falla, intentamos opción B
+          tryLegacy();
+        }
+      });
+      rendered = true; // marcamos intento con moderna
+    } catch (_) {
+      tryLegacy();
+    }
   } else {
-    qrDiv.innerHTML = '<div class="small">No se pudo cargar la librería de QR. Mostrá el código textual.</div>';
+    tryLegacy();
   }
 
-  $('#close_modal', modal).addEventListener('click', ()=> back.remove());
+  function tryLegacy() {
+    // Opción B: qrcodejs (antigua) -> new QRCode(element, { text, width, height })
+    if (window.QRCode && typeof window.QRCode === 'function') {
+      try {
+        new window.QRCode(qrDiv, { text: qrText, width: 200, height: 200 });
+        rendered = true;
+      } catch(_) {}
+    }
+    if (!rendered) {
+      qrDiv.innerHTML = '<div class="small">No se pudo generar el QR. Mostrá el código textual de abajo.</div>';
+    }
+  }
+
+  // Cerrar modal: clic fuera o tecla Esc
   back.addEventListener('click', (e)=>{ if (e.target === back) back.remove(); });
   modal.addEventListener('click', (e)=> e.stopPropagation());
+  document.addEventListener('keydown', escClose);
+
+  function escClose(e) {
+    if (e.key === 'Escape') {
+      back.remove();
+      document.removeEventListener('keydown', escClose);
+    }
+  }
 }
+
 
 /* ======== Init ======== */
 window.addEventListener('hashchange', render);
