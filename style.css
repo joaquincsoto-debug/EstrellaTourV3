@@ -42,15 +42,11 @@ html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-f
 .btn.success { background:var(--success); }
 .btn.warning { background:var(--warning); }
 
-/* Variantes compactas y cuadradas para iconos */
+/* Compact button variants */
 .btn.inline { width:auto; min-width:unset; padding:8px 10px; }
-.btn.square { width:40px; height:40px; padding:0; min-width:40px; border-radius:10px; }
-.btn.square.ghost { background:#fff; border:1px solid #e5e7eb; }
-.btn.icon { display:inline-flex; align-items:center; justify-content:center; }
-.btn.icon svg { width:18px; height:18px; display:block; fill: currentColor; }
-/* Asegurar color visible a los SVG/path/polygon */
-.btn.icon { color:#111; }
-.btn.icon svg, .btn.icon svg path, .btn.icon svg polygon { fill: currentColor; }
+.btn.icon   { display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.btn.icon svg { width:16px; height:16px; display:block; fill:currentColor; }
+.btn.nav-arrow { padding:8px; border-radius:999px; }
 
 .center { text-align:center; }
 .mt8{margin-top:8px} .mt12{margin-top:12px} .mt16{margin-top:16px} .mt24{margin-top:24px}
@@ -93,3 +89,34 @@ html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-f
 .modal { background:#fff; border-radius:12px; width:min(92vw, 520px); padding:16px; }
 
 .small { font-size:13px; color:var(--muted); }
+
+/* Botón compacto, cuadrado, con ícono centrado */
+.btn.square {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;         /* cuadrado con esquinas suaves (no redondo) */
+  min-width: 40px;             /* evita que se estire */
+}
+
+/* Variación “ghost” cuadrada */
+.btn.square.ghost {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* Íconos dentro de botones */
+.btn.icon { display: inline-flex; align-items: center; justify-content: center; }
+.btn.icon svg { width: 18px; height: 18px; display: block; fill: currentColor; }
+
+.btn.icon svg {
+  fill: #000; /* Negro para asegurar contraste */
+}
+
+.btn.icon svg {
+  fill: #1e40af; /* Azul fuerte */
+}
+
+/* Asegurar color visible para íconos dentro de botones */
+.btn.icon { color: #111; } /* currentColor para los SVG */
+.btn.icon svg, .btn.icon svg path, .btn.icon svg polygon { fill: currentColor; }
