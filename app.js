@@ -204,16 +204,19 @@ function ticketItem(ticket) {
   const right = document.createElement('div');
   right.style.display = 'flex'; right.style.alignItems = 'center'; right.style.gap = '8px';
 
-  // Botón QR compacto con icono
+  // Botón QR compacto, cuadrado y solo ícono
   const btnQR = document.createElement('button');
-  btnQR.className = 'btn inline ghost icon';
+  btnQR.className = 'btn square ghost icon';
+  btnQR.title = 'Ver QR';
+  btnQR.setAttribute('aria-label', 'Ver código QR');
   btnQR.innerHTML = `
+    <!-- Ícono QR -->
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm10 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-4v-2h2v-2zm-6 2h2v2h-2v-2z"/>
     </svg>
-    <span>Ver QR</span>
   `;
   btnQR.addEventListener('click', ()=> showQRModal(ticket));
+
 
   const kebab = document.createElement('div');
   kebab.className = 'kebab';
@@ -306,13 +309,15 @@ function viewReservar() {
     <div class="mt16">
       <div class="legend">Seleccioná una fecha en el calendario</div>
       <div class="row mt8" style="align-items:center; justify-content:center; gap:12px;">
-        <button class="btn inline ghost icon nav-arrow" id="prev_m" title="Mes anterior" aria-label="Mes anterior">
+        <button class="btn square ghost icon" id="prev_m" title="Mes anterior" aria-label="Mes anterior">
+          <!-- Triángulo 'play' hacia la izquierda -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <polygon points="16,4 8,12 16,20"></polygon>
           </svg>
         </button>
         <div class="col center" id="month_label" style="font-weight:600;"></div>
-        <button class="btn inline ghost icon nav-arrow" id="next_m" title="Mes siguiente" aria-label="Mes siguiente">
+        <button class="btn square ghost icon" id="next_m" title="Mes siguiente" aria-label="Mes siguiente">
+          <!-- Triángulo 'play' hacia la derecha -->
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <polygon points="8,4 16,12 8,20"></polygon>
           </svg>
